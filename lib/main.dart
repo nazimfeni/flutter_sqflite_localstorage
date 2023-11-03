@@ -181,7 +181,13 @@ class _HomePageState extends State<HomePage> {
           margin: const EdgeInsets.all(15),
           child: ListTile(
               title: Text(_todolist[index]['title']),
-              subtitle: Text(_todolist[index]['description']),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start, // Align children to the start position
+                children: [
+                  Text(_todolist[index]['description']),
+                  Text(_todolist[index]['createdAt']),
+                ],
+              ),
               trailing: SizedBox(
                 width: 100,
                 child: Row(
