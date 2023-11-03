@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sqflite_localstorage/sql_helper.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MyApp());
@@ -50,7 +51,10 @@ class _HomePageState extends State<HomePage> {
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _duedateController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+   DateTime? _selectedDate;
+
 
   // This function will be triggered when the floating button is pressed
   // It will also be triggered when you want to update an item
@@ -62,6 +66,7 @@ class _HomePageState extends State<HomePage> {
       _todolist.firstWhere((element) => element['id'] == id);
       _titleController.text = existingTodo['title'];
       _descriptionController.text = existingTodo['description'];
+      _duedateController.text = existingTodo['due_date'];
     }
 
     showModalBottomSheet(
@@ -95,6 +100,26 @@ class _HomePageState extends State<HomePage> {
                   decoration: const InputDecoration(hintText: 'Description'),
                   validator: isValidate,
                 ),
+                TextFormField(
+                  controller: _duedateController,
+                  decoration: InputDecoration(
+                    labelText: 'Select a Date',
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.calendar_today),
+                      onPressed: () {
+                        _selectDate(context);
+                      },
+                    ),
+                  ),
+                  readOnly: true,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please select a date';
+                    }
+                    return null;
+                  },
+                ),
+
                 const SizedBox(
                   height: 20,
                 ),
@@ -112,6 +137,7 @@ class _HomePageState extends State<HomePage> {
                       // Clear the text fields
                       _titleController.text = '';
                       _descriptionController.text = '';
+                      _duedateController.text = '';
 
                       // Close the bottom sheet
                       Navigator.of(context).pop();
@@ -131,6 +157,25 @@ class _HomePageState extends State<HomePage> {
 
 
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        _duedateController.text = DateFormat('yyyy-MM-dd').format(picked); // Format the date as needed
+      });
+    }
+  }
+
+
+
+
 
   String? isValidate(String? value) {
     if (value?.trim().isNotEmpty ?? false) {
@@ -143,14 +188,14 @@ class _HomePageState extends State<HomePage> {
 // Insert a new task to the database
   Future<void> _addItem() async {
     await SQLHelper.createItem(
-        _titleController.text, _descriptionController.text);
+        _titleController.text, _descriptionController.text, _duedateController.text);
     _refreshTodos();
   }
 
   // Update an existing task
   Future<void> _updateItem(int id) async {
     await SQLHelper.updateItem(
-        id, _titleController.text, _descriptionController.text);
+        id, _titleController.text, _descriptionController.text, _duedateController.text  );
     _refreshTodos();
   }
 
@@ -185,7 +230,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start, // Align children to the start position
                 children: [
                   Text(_todolist[index]['description']),
-                  Text(_todolist[index]['createdAt']),
+                  Text(_todolist[index]['due_date']),
                 ],
               ),
               trailing: SizedBox(
@@ -213,3 +258,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+
+
+

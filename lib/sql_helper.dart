@@ -7,6 +7,7 @@ class SQLHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         title TEXT,
         description TEXT,
+        due_date TIMESTAMP,
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       )
       """);
@@ -18,18 +19,25 @@ class SQLHelper {
   static Future<sql.Database> db() async {
     return sql.openDatabase(
       'dbtech.db',
-      version: 1,
+      version: 2,
       onCreate: (sql.Database database, int version) async {
         await createTables(database);
       },
+        onUpgrade: (db, oldVersion, newVersion) {
+          if (oldVersion < 2) {
+            // Add the new field to the table schema
+            db.execute('ALTER TABLE items ADD COLUMN due_date TIMESTAMP');
+          }
+        }
+
     );
   }
 
   // Create new item (journal)
-  static Future<int> createItem(String title, String? descrption) async {
+  static Future<int> createItem(String title, String? descrption, String? due_date) async {
     final db = await SQLHelper.db();
 
-    final data = {'title': title, 'description': descrption};
+    final data = {'title': title, 'description': descrption, 'due_date':due_date};
     final id = await db.insert('items', data,
         conflictAlgorithm: sql.ConflictAlgorithm.replace);
     return id;
@@ -50,12 +58,13 @@ class SQLHelper {
 
   // Update an item by id
   static Future<int> updateItem(
-      int id, String title, String? descrption) async {
+      int id, String title, String? descrption, String? due_date) async {
     final db = await SQLHelper.db();
 
     final data = {
       'title': title,
       'description': descrption,
+      'due_date':due_date,
       'createdAt': DateTime.now().toString()
     };
 
