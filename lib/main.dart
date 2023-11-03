@@ -29,12 +29,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // All journals
+  // All tasks
   List<Map<String, dynamic>> _todolist = [];
 
   bool _isLoading = true;
   // This function is used to fetch all data from the database
-  void _refreshJournals() async {
+  void _refreshTodos() async {
     final data = await SQLHelper.getItems();
     setState(() {
       _todolist = data;
@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _refreshJournals(); // Loading the diary when the app starts
+    _refreshTodos(); // Loading the diary when the app starts
   }
 
   final TextEditingController _titleController = TextEditingController();
@@ -58,10 +58,10 @@ class _HomePageState extends State<HomePage> {
     if (id != null) {
       // id == null -> create new item
       // id != null -> update an existing item
-      final existingJournal =
+      final existingTodo =
       _todolist.firstWhere((element) => element['id'] == id);
-      _titleController.text = existingJournal['title'];
-      _descriptionController.text = existingJournal['description'];
+      _titleController.text = existingTodo['title'];
+      _descriptionController.text = existingTodo['description'];
     }
 
     showModalBottomSheet(
@@ -140,27 +140,27 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-// Insert a new journal to the database
+// Insert a new task to the database
   Future<void> _addItem() async {
     await SQLHelper.createItem(
         _titleController.text, _descriptionController.text);
-    _refreshJournals();
+    _refreshTodos();
   }
 
-  // Update an existing journal
+  // Update an existing task
   Future<void> _updateItem(int id) async {
     await SQLHelper.updateItem(
         id, _titleController.text, _descriptionController.text);
-    _refreshJournals();
+    _refreshTodos();
   }
 
   // Delete an item
   void _deleteItem(int id) async {
     await SQLHelper.deleteItem(id);
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Successfully deleted a journal!'),
+      content: Text('Successfully deleted a task!'),
     ));
-    _refreshJournals();
+    _refreshTodos();
   }
 
   @override
