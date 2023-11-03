@@ -50,6 +50,7 @@ class _HomePageState extends State<HomePage> {
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // This function will be triggered when the floating button is pressed
   // It will also be triggered when you want to update an item
@@ -75,47 +76,68 @@ class _HomePageState extends State<HomePage> {
             // this will prevent the soft keyboard from covering the text fields
             bottom: MediaQuery.of(context).viewInsets.bottom + 120,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              TextField(
-                controller: _titleController,
-                decoration: const InputDecoration(hintText: 'Title'),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              TextField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(hintText: 'Description'),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  // Save new journal
-                  if (id == null) {
-                    await _addItem();
-                  }
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(hintText: 'Title'),
+                  validator: isValidate,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(hintText: 'Description'),
+                  validator: isValidate,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if(_formKey.currentState!.validate()){
+                      if (id == null) {
+                        await _addItem();
+                      }
 
-                  if (id != null) {
-                    await _updateItem(id);
-                  }
+                      if (id != null) {
+                        await _updateItem(id);
+                      }
 
-                  // Clear the text fields
-                  _titleController.text = '';
-                  _descriptionController.text = '';
+                      // Clear the text fields
+                      _titleController.text = '';
+                      _descriptionController.text = '';
 
-                  // Close the bottom sheet
-                  Navigator.of(context).pop();
-                },
-                child: Text(id == null ? 'Create New' : 'Update'),
-              )
-            ],
+                      // Close the bottom sheet
+                      Navigator.of(context).pop();
+                    }
+
+                  },
+                  child: Text(id == null ? 'Create New' : 'Update'),
+                )
+              ],
+            ),
           ),
         ));
+  }
+
+
+
+
+
+
+
+  String? isValidate(String? value) {
+    if (value?.trim().isNotEmpty ?? false) {
+      return null;
+    } else {
+      return 'Please enter data';
+    }
   }
 
 // Insert a new journal to the database
