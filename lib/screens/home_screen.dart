@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 TextFormField(
                   controller: _titleController,
-                  decoration: const InputDecoration(hintText: 'Title'),
+                  decoration: const InputDecoration(hintText: 'Title *'),
                   validator: isValidate,
                 ),
                 const SizedBox(
@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
                   controller: _descriptionController,
                   decoration:
                   const InputDecoration(hintText: 'Description'),
-                  validator: isValidate,
+                  // validator: isValidate,
                 ),
                 TextFormField(
                   controller: _duedateController,
@@ -94,12 +94,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   readOnly: true,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please select a date';
-                    }
-                    return null;
-                  },
+                  // validator: isValidate
                 ),
                 const SizedBox(
                   height: 20,
@@ -198,13 +193,13 @@ class _HomePageState extends State<HomePage> {
           color: Colors.orange[200],
           margin: const EdgeInsets.all(15),
           child: ListTile(
-              title: Text(_todolist[index]['title']),
+              title: Text(_todolist[index]['title'], style: const TextStyle(fontWeight: FontWeight.bold),),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment
                     .start, // Align children to the start position
                 children: [
-                  Text(_todolist[index]['description']),
-                  Text(_todolist[index]['due_date']),
+                  Text(_todolist[index]['description'], style: const TextStyle(color: Colors.black),),
+                  Text(_todolist[index]['due_date'], style: const TextStyle(color: Colors.black),),
                 ],
               ),
               trailing: SizedBox(
@@ -222,23 +217,24 @@ class _HomePageState extends State<HomePage> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text("Confirm Deletion"),
+                              title: const Text("Confirm Deletion"),
                               content:
-                              Text("Confirm to delete this item?"),
+                              const Text("Confirm to delete this item?"),
                               actions: <Widget>[
                                 TextButton(
-                                  child: Text("Yes"),
+                                  child: const Text("No"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                TextButton(
+                                  child: const Text("Yes"),
                                   onPressed: () {
                                     _deleteItem(_todolist[index]['id']);
                                     Navigator.of(context).pop();
                                   },
                                 ),
-                                TextButton(
-                                  child: Text("No"),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
+
                               ],
                             );
                           },
